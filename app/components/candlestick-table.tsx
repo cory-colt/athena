@@ -1,31 +1,44 @@
 import * as fsPromise from 'fs/promises';
 import Table from 'react-bootstrap/Table';
+import { CandleStickModel } from '../models/candlestick.model';
 
 const file = await fsPromise.open('./app/data/market-data-sample.txt', 'r');
-const rawCandles = [];
+const rawCandles: CandleStickModel[] = [];
+
+// read in the raw candlestick data from the text file
+var index = 1;
 for await (const line of file.readLines()) {
     var split = line.split(',', 6);
     
     rawCandles.push(
-        {
-            date: split[0], 
-            open: split[1], 
-            high: split[2], 
-            low: split[3], 
-            close: split[4], 
-            volume: split[5]
-        }
+        new CandleStickModel(
+            index, 
+            new Date(split[0]), 
+            parseFloat(split[1]), 
+            parseFloat(split[2]), 
+            parseFloat(split[3]), 
+            parseFloat(split[4]), 
+            parseFloat(split[5])
+        )
     );
+
+    index++;
 }
 
+const doSomething = (candles: CandleStickModel[]) => {
+    console.log(candles.length);
+}
+
+doSomething(rawCandles);
+
 const listCandles = rawCandles.map(candle => 
-    <tr key={candle.date}>
-        <td>{candle.date}</td>
-        <td>{candle.open}</td>
-        <td>{candle.high}</td>
-        <td>{candle.low}</td>
-        <td>{candle.close}</td>
-        <td>{candle.volume}</td>
+    <tr key={candle.id.toString()}>
+        <td>{candle.date.toString()}</td>
+        <td>{candle.open.toFixed(2)}</td>
+        <td>{candle.high.toFixed(2)}</td>
+        <td>{candle.low.toFixed(2)}</td>
+        <td>{candle.close.toFixed(2)}</td>
+        <td>{candle.volume.toFixed(2)}</td>
         <td>TBD</td>
         <td>TBD</td>
     </tr>
